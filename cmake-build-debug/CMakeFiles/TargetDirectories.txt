@@ -1,0 +1,3 @@
+C:/Users/SPein/Documents/Programacion/Proyecto2/cmake-build-debug/CMakeFiles/pro6oct.dir
+C:/Users/SPein/Documents/Programacion/Proyecto2/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/SPein/Documents/Programacion/Proyecto2/cmake-build-debug/CMakeFiles/rebuild_cache.dir
