@@ -64,14 +64,43 @@ void Comandos::run() {
             }else{
                 cout << "Uso: v_cercano <nombre_objeto> | 'vacio'\n";
             }
-        }else if(comando.find("v_cercanio_caja")== 0){
+        } else if(comando.find("v_cercanio_caja")== 0){
             if(comando.length() > 15){
                 string param = comando.substr(15);
                 ejecutarCercanoCaja(param);
             } else{
                 cout << "Uso: v_cercano_caja <nombre_objeto>\n";
             }
-        }else if (comando.find("descargar") == 0) {
+        } else if (comando.find("ruta_corta") == 0) {
+            // Si el comando contiene "centro", es ruta_corta_centro
+            if (comando.length() > 10) {
+                int param;
+                int param2;
+                string juanito;
+                cout<<"Ingrese el primer indice:";
+                cin>>param;
+                cout<<"Ingrese el segundo indice:";
+                cin>>param2;
+                cout<<"Ingrese el nombre del objeto:";
+                cin>>juanito;
+                ejecutarRutaCorta(param, param2, juanito);
+                } else {
+                    cout << "Uso: ruta_corta_centro <indice_vertice> <nombre_objeto>\n";
+                }
+            }
+            else if (comando.find("ruta_corta_centro") == 0) {
+            if (comando.length() > 17) {
+                int param;
+                string juanito;
+                cout<<"Ingrese el primer indice:";
+                cin>>param;
+                cout<<"Ingrese el nombre del objeto:";
+                cin>>juanito;
+                ejecutarRutaCortaCentro(param, juanito);
+            } else {
+                cout << "Uso: ruta_corta <indice_vertice1> <indice_vertice2> <nombre_objeto>\n";
+            }
+        } else if (comando.find("descargar") == 0) {
             if (comando.length() > 10) {
                 string param = comando.substr(10);
                 ejecutarDescargar(param);
@@ -79,28 +108,12 @@ void Comandos::run() {
                 cout << "Uso: descargar <nombre_objeto>\n";
             }
         } else if (comando.find("guardar") == 0) {
-            // Encuentra el primer espacio después de "guardar"
             size_t pos1 = comando.find(' ', 7);
-
             if (pos1 != string::npos && pos1 + 1 < comando.length()) {
-                // Encuentra el siguiente espacio después del nombre del objeto
                 size_t pos2 = comando.find(' ', pos1 + 1);
-
-                // Si se encuentra otro espacio, separamos nombre del objeto y archivo
                 if (pos2 != string::npos) {
-                    string param1 = comando.substr(8, pos2 - 8); // Nombre del objeto
-                    string param2 = comando.substr(pos2 + 1);     // Nombre del archivo
-
-                    if (!param1.empty() && !param2.empty()) {
-                        ejecutarGuardar(param1, param2);
-                    } else {
-                        cout << "Uso: guardar <nombre_objeto> <nombre_archivo>\n";
-                    }
-                } else {
-
-                    string param1 = comando.substr(8, pos1 - 8);  // Nombre del objeto
-                    string param2 = comando.substr(pos1 + 1);     // Nombre del archivo
-
+                    string param1 = comando.substr(8, pos2 - 8);
+                    string param2 = comando.substr(pos2 + 1);
                     if (!param1.empty() && !param2.empty()) {
                         ejecutarGuardar(param1, param2);
                     } else {
@@ -134,6 +147,8 @@ void Comandos::mostrarAyuda() {
     cout << "  v_cercano <nombre_objeto> - Identifica el vertice del objeto <nombre_objeto> mas cercano al punto indicado por px, py, pz\n";
     cout << "  v_cercano - Identifica el vertice mas cercano al punto dado entre todos los objetos cargados\n";
     cout << "  v_cercanio_caja <nombre_objeto> - Identifica los vertices del objeto <nombre_objeto> mas cercanos a las esquinas de su caja envolvente\n";
+    cout << "  ruta_corta <indice_vertice1> <indice_vertice2> <nombre_objeto> - Encuentra la ruta más corta entre dos vértices\n";
+    cout << "  ruta_corta_centro <indice_vertice> <nombre_objeto> - Encuentra la ruta más corta desde un vértice hasta el centro del objeto\n";
 }
 
 void Comandos::mostrarAyudaComando(const string& comando) {
@@ -167,6 +182,15 @@ void Comandos::mostrarAyudaComando(const string& comando) {
     } else if (comando == "v_cercanos_caja") {
         cout << "Uso: v_cercanio_caja <nombre_objeto>\n";
         cout << "Descripcion: Identifica los vértices más cercanos a las esquinas de la caja envolvente del objeto especificado.\n";
+    } else if (comando == "ruta_corta") {
+        cout << "Uso: ruta_corta <indice_vertice1> <indice_vertice2> <nombre_objeto>\n";
+        cout << "Descripcion: Encuentra la ruta más corta entre dos vértices del objeto especificado.\n";
+        cout << "El comando retorna los índices de los vértices que conforman la ruta más corta y la distancia total.\n";
+    } else if (comando == "ruta_corta_centro") {
+        cout << "Uso: ruta_corta_centro <indice_vertice> <nombre_objeto>\n";
+        cout << "Descripcion: Encuentra la ruta más corta desde un vértice hasta el centro del objeto especificado.\n";
+        cout << "El comando calcula el centroide del objeto, conecta el vértice más cercano al centroide,\n";
+        cout << "y encuentra la ruta más corta desde el vértice dado hasta el centroide.\n";
     } else {
         cout << "Comando no reconocido.\n";
     }
