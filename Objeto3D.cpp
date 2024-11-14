@@ -129,3 +129,35 @@ Nodo* Object3D::crearArbol(deque<Punto> puntos, int aux,Nodo* nodo) {
     }
      return n;
 }
+
+const string &Object3D::getNombre() const {
+    return nombre;
+}
+
+void Object3D::setNombre(const string &nombre) {
+    Object3D::nombre = nombre;
+}
+
+int Object3D::getCantPuntos() const {
+    return cantPuntos;
+}
+
+void Object3D::setCantPuntos(int cantPuntos) {
+    Object3D::cantPuntos = cantPuntos;
+}
+
+const deque<Punto> &Object3D::getPuntos() const {
+    return puntos;
+}
+
+void Object3D::setPuntos(const deque<Punto> &puntos) {
+    Object3D::puntos = puntos;
+}
+
+const vector<Cara> &Object3D::getCaras() const {
+    return caras;
+}
+
+void Object3D::setCaras(const vector<Cara> &caras) {
+    Object3D::caras = caras;
+}

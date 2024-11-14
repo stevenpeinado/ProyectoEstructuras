@@ -15,4 +15,9 @@ add_executable(pro6oct main.cpp
         Comandos.cpp
         Comandos.h
         Cara.cpp
-        Cara.h)
+        Cara.h
+        Grafo.cpp
+        Grafo.h
+        NodosG.cpp
+        NodosG.h
+)

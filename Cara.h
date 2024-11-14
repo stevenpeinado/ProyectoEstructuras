@@ -16,5 +16,12 @@ public:
     }
     Cara() = default;
 
+    const std::deque<Punto> &getVertices() const {
+        return vertices;
+    }
+
+    void setVertices(const std::deque<Punto> &vertices) {
+        Cara::vertices = vertices;
+    }
 };
 #endif //UNTITLED_CARA_H

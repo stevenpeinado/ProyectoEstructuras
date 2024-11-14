@@ -4,6 +4,8 @@
 #include <fstream>
 #include "Objeto3D.h"
 #include <algorithm>  // para std::min_element y std::max_element
+#include <cmath>
+
 using namespace std;
 
 void Comandos::run() {
@@ -583,6 +585,154 @@ void Comandos::ejecutarGuardar(const string& nombreObjeto, const string& nombreA
     }
     cout<<"Archivo creado exitosamente.\n";
 }
+
+void Comandos::ejecutarRutaCorta(int i1, int i2, string nombreObjeto) {
+    // Verificar si el objeto existe
+    if(!objetoExiste(nombreObjeto)) {
+        cout << "(Objeto no existe) El objeto " << nombreObjeto << " no ha sido cargado en memoria." << endl;
+        return;
+    }
+
+    Object3D* obj = nullptr;
+    for(auto& o : objetosCargados) {
+        if(o.getNombre() == nombreObjeto) {
+            obj = &o;
+            break;
+        }
+    }
+
+    // Verificar índices
+    if(i1 == i2) {
+        cout << "(Índices iguales) Los indices de los vertices dados son iguales." << endl;
+        return;
+    }
+
+    if(i1 < 0 || i2 < 0 || i1 >= obj->getCantPuntos() || i2 >= obj->getCantPuntos()) {
+        cout << "(Índices no existen) Algunos de los indices de vertices estan fuera de rango para el objeto " << nombreObjeto << "." << endl;
+        return;
+    }
+
+    // Construir grafo
+    Grafo* grafo = construirGrafo(obj);
+
+    // Encontrar ruta más corta
+    vector<int> ruta = grafo->dijkstra(i1, i2);
+
+    if(ruta.empty()) {
+        cout << "No existe una ruta entre los vertices dados." << endl;
+    } else {
+        float distanciaTotal = 0;
+        for(size_t i = 0; i < ruta.size() - 1; i++) {
+            Punto p1 = obj->getPuntos()[ruta[i]];
+            Punto p2 = obj->getPuntos()[ruta[i + 1]];
+            distanciaTotal += p1.distancia(p2);
+        }
+
+        cout << "(Resultado exitoso) La ruta más corta que conecta los vertices " << i1 << " y " << i2
+             << " del objeto " << nombreObjeto << " pasa por: ";
+        for(size_t i = 0; i < ruta.size(); i++) {
+            cout << ruta[i];
+            if(i < ruta.size() - 1) cout << ",";
+        }
+        cout << "; con una longitud de " << distanciaTotal << "." << endl;
+    }
+
+    delete grafo;
+}
+
+void Comandos::ejecutarRutaCortaCentro(int i1, string nombreObjeto) {
+    // Verificar si el objeto existe
+    if(!objetoExiste(nombreObjeto)) {
+        cout << "(Objeto no existe) El objeto " << nombreObjeto << " no ha sido cargado en memoria." << endl;
+        return;
+    }
+
+    Object3D* obj = nullptr;
+    for(auto& o : objetosCargados) {
+        if(o.getNombre() == nombreObjeto) {
+            obj = &o;
+            break;
+        }
+    }
+
+    // Verificar índice
+    if(i1 < 0 || i1 >= obj->getCantPuntos()) {
+        cout << "(Índice no existe) El indice de vertice esta fuera de rango para el objeto " << nombreObjeto << "." << endl;
+        return;
+    }
+
+    // Calcular centro (centroide)
+    float sumX = 0, sumY = 0, sumZ = 0;
+    for(const auto& punto : obj->getPuntos()) {
+        sumX += punto.getX();
+        sumY += punto.getY();
+        sumZ += punto.getZ();
+    }
+    int n = obj->getCantPuntos();
+    Punto centro(sumX/n, sumY/n, sumZ/n);
+
+    // Encontrar vértice más cercano al centro
+    float minDist = INFINITY;
+    int indiceCentro = 0;
+    for(int i = 0; i < n; i++) {
+        float dist = obj->getPuntos()[i].distancia(centro);
+        if(dist < minDist) {
+            minDist = dist;
+            indiceCentro = i;
+        }
+    }
+
+    // Construir grafo
+    Grafo* grafo = construirGrafo(obj);
+
+    // Encontrar ruta más corta hasta el centro
+    vector<int> ruta = grafo->dijkstra(i1, indiceCentro);
+
+    if(ruta.empty()) {
+        cout << "No existe una ruta entre el vertice y el centro." << endl;
+    } else {
+        float distanciaTotal = 0;
+        for(size_t i = 0; i < ruta.size() - 1; i++) {
+            Punto p1 = obj->getPuntos()[ruta[i]];
+            Punto p2 = obj->getPuntos()[ruta[i + 1]];
+            distanciaTotal += p1.distancia(p2);
+        }
+
+        cout << "(Resultado exitoso) La ruta más corta que conecta el vertice " << i1
+             << " con el centro del objeto " << nombreObjeto << ", ubicado en ct ("
+             << centro.getX() << ", " << centro.getY() << ", " << centro.getZ()
+             << "), pasa por: ";
+        for(const auto& idx : ruta) {
+            cout << idx << ",";
+        }
+        cout << "ct; con una longitud de " << (distanciaTotal + minDist) << "." << endl;
+    }
+
+    delete grafo;
+}
+
+Grafo* Comandos::construirGrafo(Object3D* objeto) {
+    Grafo* grafo = new Grafo();
+
+    // Agregar todos los vértices al grafo
+    for(int i = 0; i < objeto->getCantPuntos(); i++) {
+        grafo->agregarNodo(i, objeto->getPuntos()[i]);
+    }
+
+    // Agregar aristas basadas en las caras
+    for(const auto& cara : objeto->getCaras()) {
+        vector<int> indices = (const vector<int> &) cara.getVertices();
+        // Conectar todos los vértices de la cara entre sí
+        for(size_t i = 0; i < indices.size(); i++) {
+            for(size_t j = i + 1; j < indices.size(); j++) {
+                grafo->agregarArista(indices[i], indices[j]);
+            }
+        }
+    }
+
+    return grafo;
+}
+
 
 void Comandos::ejecutarClear() {
 

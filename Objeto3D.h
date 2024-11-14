@@ -24,5 +24,20 @@ public:
     Object3D() : arbol(),nombre(""), puntos(), caras() {}
     Nodo* crearArbol(deque<Punto> puntos,int aux,Nodo* nodo);
 
+    const string &getNombre() const;
+
+    void setNombre(const string &nombre);
+
+    int getCantPuntos() const;
+
+    void setCantPuntos(int cantPuntos);
+
+    const deque<Punto> &getPuntos() const;
+
+    void setPuntos(const deque<Punto> &puntos);
+
+    const vector<Cara> &getCaras() const;
+
+    void setCaras(const vector<Cara> &caras);
 };
 #endif //UNTITLED_OBJETO3D_H

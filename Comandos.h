@@ -4,6 +4,7 @@
 #include <string>
 #include <unordered_set>
 #include "Objeto3D.h"
+#include "Grafo.h"
 
 using namespace std;
 class Comandos {
@@ -29,6 +30,10 @@ public:
     void ejecutarCercanoNombre(float px, float py, float pz,string n,vector<Object3D>objetosCargados);
     void ejecutarCercano(float px, float py, float pz,vector<Object3D>objetos);
     void ejecutarCercanoCaja(string n);
+    void ejecutarRutaCorta(int i1, int i2, string nombreObjeto);
+    void ejecutarRutaCortaCentro(int i1, string nombreObjeto);
+    Grafo* construirGrafo(Object3D* objeto);
+
 };
 
 #endif // COMANDOS_H
