@@ -1,99 +1,91 @@
+// Grafo.cpp
 #include "Grafo.h"
-#include "Punto.h"
+#include <cmath>
 #include <queue>
 #include <limits>
-#include <cmath>
-#include <iostream>
+#include <algorithm>
 
-Grafo::Grafo() {}
-
-Grafo::~Grafo() {
-    clear();
-}
-
-void Grafo::clear() {
-    for(auto nodo : nodos) {
-        delete nodo;
-    }
+void Grafo::construirGrafo(const Object3D& objeto) {
+    // Limpiar el grafo
     nodos.clear();
-}
 
-void Grafo::agregarNodo(int id, Punto p) {
-    nodos.push_back(new NodosG(id, p));
-}
+    // Crear nodos para cada vértice
+    for (size_t i = 0; i < objeto.getPuntos().size(); i++) {
+        nodos.push_back(NodosG(i, objeto.getPuntos()[i]));
+    }
 
-void Grafo::agregarArista(int id1, int id2) {
-    NodosG* n1 = getNodo(id1);
-    NodosG* n2 = getNodo(id2);
-    if(n1 && n2) {
-        float peso = n1->getPunto().distancia(n2->getPunto());
-        n1->agregarAdyacente(n2, peso);
-        n2->agregarAdyacente(n1, peso);  // Grafo no dirigido
+    // Conectar nodos según las caras del objeto
+    for (const Cara& cara : objeto.getCaras()) {
+        const auto& vertices = cara.getVertices();
+        // Conectar todos los vértices de la cara entre sí
+        for (size_t i = 0; i < vertices.size(); i++) {
+            for (size_t j = i + 1; j < vertices.size(); j++) {
+                float peso = calcularDistancia(vertices[i], vertices[j]);
+                nodos[i].agregarAdyacente(j, peso);
+                nodos[j].agregarAdyacente(i, peso);
+            }
+        }
     }
 }
 
-void Grafo::limpiarEstado() {
-    for(auto nodo : nodos) {
-        nodo->setVisitado(false);
-        nodo->setDistancia(std::numeric_limits<float>::infinity()); // Mejor uso que INFINITY
-        nodo->setAnterior(nullptr);
-    }
+float Grafo::calcularDistancia(const Punto& p1, const Punto& p2) const {
+    float dx = p1.getX() - p2.getX();
+    float dy = p1.getY() - p2.getY();
+    float dz = p1.getZ() - p2.getZ();
+    return std::sqrt(dx*dx + dy*dy + dz*dz);
 }
 
-NodosG* Grafo::getNodo(int id) {
-    for(auto nodo : nodos) {
-        if(nodo->getId() == id) return nodo;
+std::vector<int> Grafo::encontrarRutaCorta(int inicio, int fin) {
+    // Inicializar todos los nodos
+    for (NodosG& nodo : nodos) {
+        nodo.reset();
     }
-    return nullptr;
-}
 
-std::vector<int> Grafo::dijkstra(int inicio, int fin) {
-    limpiarEstado();
-    std::vector<int> camino;
+    // Configurar nodo inicial
+    nodos[inicio].setDistancia(0);
 
     // Cola de prioridad para Dijkstra
-    auto comp = [](NodosG* a, NodosG* b) { return a->getDistancia() > b->getDistancia(); };
-    std::priority_queue<NodosG*, std::vector<NodosG*>, decltype(comp)> pq(comp);
+    std::priority_queue<std::pair<int, float>,
+            std::vector<std::pair<int, float>>,
+            ComparadorNodos> cola;
+    cola.push({inicio, 0});
 
-    // Inicializar nodo inicial
-    NodosG* nodoInicio = getNodo(inicio);
-    if(!nodoInicio) return camino;
-    nodoInicio->setDistancia(0);
-    pq.push(nodoInicio);
+    // Algoritmo de Dijkstra
+    while (!cola.empty()) {
+        int actual = cola.top().first;
+        float distActual = cola.top().second;
+        cola.pop();
 
-    while(!pq.empty()) {
-        NodosG* actual = pq.top();
-        pq.pop();
+        // Si encontramos el destino, terminamos
+        if (actual == fin) break;
 
-        if(actual->getId() == fin) break;
-        if(actual->getVisitado()) continue;
+        // Si la distancia actual es mayor que la almacenada, ignoramos
+        if (distActual > nodos[actual].getDistancia()) continue;
 
-        actual->setVisitado(true);
+        // Revisar todos los vecinos
+        for (const auto& vecino : nodos[actual].getAdyacentes()) {
+            int indiceVecino = vecino.first;
+            float peso = vecino.second;
+            float nuevaDistancia = nodos[actual].getDistancia() + peso;
 
-        // Explorar vecinos
-        for(const auto& par : actual->getAdyacentes()) {
-            NodosG* vecino = par.first;
-            float peso = par.second;
-
-            if(!vecino->getVisitado()) {
-                float nuevaDistancia = actual->getDistancia() + peso;
-                if(nuevaDistancia < vecino->getDistancia()) {
-                    vecino->setDistancia(nuevaDistancia);
-                    vecino->setAnterior(actual);
-                    pq.push(vecino);
-                }
+            if (nuevaDistancia < nodos[indiceVecino].getDistancia()) {
+                nodos[indiceVecino].setDistancia(nuevaDistancia);
+                nodos[indiceVecino].setAnterior(actual);
+                cola.push({indiceVecino, nuevaDistancia});
             }
         }
     }
 
-    // Reconstruir camino
-    NodosG* actual = getNodo(fin);
-    if(actual && actual->getDistancia() != std::numeric_limits<float>::infinity()) {
-        while(actual) {
-            camino.insert(camino.begin(), actual->getId());
-            actual = actual->getAnterior();
-        }
+    // Reconstruir el camino
+    std::vector<int> camino;
+    if (nodos[fin].getDistancia() == std::numeric_limits<float>::infinity()) {
+        return camino; // Camino vacío si no hay ruta
     }
+
+    for (int actual = fin; actual != -1; actual = nodos[actual].getAnterior()) {
+        camino.push_back(actual);
+    }
+    std::reverse(camino.begin(), camino.end());
 
     return camino;
 }

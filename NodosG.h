@@ -1,32 +1,42 @@
-#ifndef NODOSG_H
-#define NODOSG_H
+// NodoG.h
+#ifndef NODOG_H
+#define NODOG_H
 
 #include <vector>
+#include <memory>
 #include "Punto.h"
 
 class NodosG {
 private:
-    int id;
-    Punto punto;
-    std::vector<std::pair<NodosG*, float>> adyacentes; // par de (nodo, peso)
-    bool visitado;
-    float distancia;  // para Dijkstra
-    NodosG* anterior;  // para reconstruir el camino
+    int indice;
+    Punto punto;  // Almacenamos el punto directamente, no como puntero
+    std::vector<std::pair<int, float>> adyacentes; // Par de (índice del nodo, peso)
+    float distancia;
+    int anterior;
 
 public:
-    NodosG(int id, Punto p);
-    void agregarAdyacente(NodosG* nodo, float peso);
-    int getId() const;
-    Punto getPunto() const;
-    const std::vector<std::pair<NodosG*, float>>& getAdyacentes() const;
-    void setVisitado(bool v);
-    bool getVisitado() const;
-    void setDistancia(float d);
-    float getDistancia() const;
-    void setAnterior(NodosG* n);
-    NodosG* getAnterior() const;
+    // Constructor
+    NodosG(int idx = -1, const Punto& p = Punto());
+
+    // Getters y setters
+    int getIndice() const { return indice; }
+    const Punto& getPunto() const { return punto; }
+    void setPunto(const Punto& p) { punto = p; }
+
+    // Manejo de adyacencia
+    void agregarAdyacente(int indiceNodo, float peso);
+    const std::vector<std::pair<int, float>>& getAdyacentes() const { return adyacentes; }
+
+    // Métodos para Dijkstra
+    void setDistancia(float d) { distancia = d; }
+    float getDistancia() const { return distancia; }
+    void setAnterior(int a) { anterior = a; }
+    int getAnterior() const { return anterior; }
+
+    // Reset del nodo para nuevo cálculo
+    void reset();
 };
 
-#endif // NODOSG_H
+#endif
 
 
