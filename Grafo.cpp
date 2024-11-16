@@ -14,15 +14,17 @@ void Grafo::construirGrafo(const Object3D& objeto) {
         nodos.push_back(NodosG(i, objeto.getPuntos()[i]));
     }
 
-    // Conectar nodos según las caras del objeto
+    // Conectar nodos según las caras del objetoFFF
     for (const Cara& cara : objeto.getCaras()) {
         const auto& vertices = cara.getVertices();
         // Conectar todos los vértices de la cara entre sí
         for (size_t i = 0; i < vertices.size(); i++) {
             for (size_t j = i + 1; j < vertices.size(); j++) {
-                float peso = calcularDistancia(vertices[i], vertices[j]);
-                nodos[i].agregarAdyacente(j, peso);
-                nodos[j].agregarAdyacente(i, peso);
+                int indice1 = vertices[i]; // Índice global del primer vértice
+                int indice2 = vertices[j]; // Índice global del segundo vértice
+                float peso = calcularDistancia(objeto.getPuntos()[indice1], objeto.getPuntos()[indice2]);
+                nodos[indice1].agregarAdyacente(indice2, peso);
+                nodos[indice2].agregarAdyacente(indice1, peso);
             }
         }
     }

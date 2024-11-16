@@ -7,8 +7,9 @@
 #define UNTITLED_CARA_H
 class Cara {
 public:
-    std::deque<Punto> vertices;
-    Cara(const Punto& v1, const Punto& v2, const Punto& v3, const Punto& v4) {
+    std::deque<int> vertices; // Índices de los vértices
+
+    Cara(int v1, int v2, int v3, int v4) {
         vertices.push_back(v1);
         vertices.push_back(v2);
         vertices.push_back(v3);
@@ -16,12 +17,13 @@ public:
     }
     Cara() = default;
 
-    const std::deque<Punto> &getVertices() const {
+    const std::deque<int>& getVertices() const {
         return vertices;
     }
 
-    void setVertices(const std::deque<Punto> &vertices) {
-        Cara::vertices = vertices;
+    void setVertices(const std::deque<int>& vertices) {
+        this->vertices = vertices;
     }
 };
+
 #endif //UNTITLED_CARA_H

@@ -34,9 +34,9 @@ void Comandos::run() {
         } else if (comando.find("envolvente") == 0) {
             if (comando.length() > 11) {
                 string param = comando.substr(11);
-                ejecutarEnvolventeObjeto(param);
+//                ejecutarEnvolventeObjeto(param);
             }else if(comando.length() < 11){
-                ejecutarEnvolvente();
+//                ejecutarEnvolvente();
             }else {
                 cout << "Uso: envolvente <nombre_objeto> | 'vacio'\n";
             }
@@ -73,7 +73,7 @@ void Comandos::run() {
             }
         } else if (comando.find("ruta_corta") == 0) {
             // Si el comando contiene "centro", es ruta_corta_centro
-            if (comando.length() > 10) {
+            if (comando.length() > 9) {
                 int param;
                 int param2;
                 string juanito;
@@ -98,7 +98,7 @@ void Comandos::run() {
                 cin>>juanito;
                 ejecutarRutaCortaCentro(param, juanito);
             } else {
-                cout << "Uso: ruta_corta <indice_vertice1> <indice_vertice2> <nombre_objeto>\n";
+                cout << "Uso: ruta_corta_centro <indice_vertice1> <indice_vertice2> <nombre_objeto>\n";
             }
         } else if (comando.find("descargar") == 0) {
             if (comando.length() > 10) {
@@ -115,7 +115,7 @@ void Comandos::run() {
                     string param1 = comando.substr(8, pos2 - 8);
                     string param2 = comando.substr(pos2 + 1);
                     if (!param1.empty() && !param2.empty()) {
-                        ejecutarGuardar(param1, param2);
+//                        ejecutarGuardar(param1, param2);
                     } else {
                         cout << "Uso: guardar <nombre_objeto> <nombre_archivo>\n";
                     }
@@ -212,7 +212,6 @@ bool Comandos::objetoExiste(const string& nombreObjeto) {
 }
 
 void Comandos::ejecutarCargar(const string& nombreArchivo) {
-
     if (archivoExiste(nombreArchivo)) {
         ifstream file(nombreArchivo);
 
@@ -225,19 +224,18 @@ void Comandos::ejecutarCargar(const string& nombreArchivo) {
         string line;
         int nPuntos = 0;
 
-
         if (!getline(file, line)) {
             cerr << "Error: No se pudo leer el nombre del objeto en el archivo." << endl;
             return;
         }
         for (const auto& objet : objetosCargados) {
-            if(objet.nombre == line)
-                cout<<"Ese objeto ya fue cargado\n";
-            return;
+            if (objet.nombre == line) {
+                cout << "Ese objeto ya fue cargado\n";
+                return;
+            }
         }
         objeto.nombre = line;
         cout << "Cargando objeto: " << objeto.nombre << endl;
-
 
         if (!getline(file, line)) {
             cerr << "Error: No se pudo leer la cantidad de puntos en el archivo." << endl;
@@ -255,7 +253,6 @@ void Comandos::ejecutarCargar(const string& nombreArchivo) {
             return;
         }
 
-
         for (int n = 0; n < nPuntos; n++) {
             float x = 0, y = 0, z = 0;
             if (!(file >> x >> y >> z)) {
@@ -265,7 +262,6 @@ void Comandos::ejecutarCargar(const string& nombreArchivo) {
             Punto punto(x, y, z);
             objeto.puntos.push_back(punto);
         }
-
 
         int nPuntosxCara, caras = 0;
         file >> nPuntosxCara;
@@ -284,28 +280,35 @@ void Comandos::ejecutarCargar(const string& nombreArchivo) {
                     cerr << "Error: Índice de vértice fuera de rango." << endl;
                     return;
                 }
-                cara.vertices.push_back(objeto.puntos[a]);
+                cara.vertices.push_back(a); // Agregar índice
             }
 
             objeto.caras.push_back(cara);
             file >> nPuntosxCara;
         }
 
+        // Crear árbol usando los puntos de las caras
+        deque<Punto> puntosArbol;
+        for (const auto& cara : objeto.caras) {
+            for (const auto& indice : cara.getVertices()) {
+                puntosArbol.push_back(objeto.puntos[indice]);
+            }
+        }
 
         objetosCargados.push_back(objeto);
         file.close();
         cantObjetos++;
         cout << "Objeto cargado correctamente: " << objeto.nombre << endl;
+
         Nodo nAux;
-        Nodo* n =objeto.crearArbol(objeto.puntos,1, nullptr);
+        Nodo* n = objeto.crearArbol(puntosArbol, 1, nullptr);
         objeto.arbol.setRaiz(*n);
 
-
-
     } else {
-        cerr << "Error: El archivo " << nombreArchivo << " no existe." <<endl;
-        }
+        cerr << "Error: El archivo " << nombreArchivo << " no existe." << endl;
+    }
 }
+
 
 void Comandos::ejecutarListado() {
     cout << "Listado de objetos en memoria:\n";
@@ -429,15 +432,15 @@ void Comandos::ejecutarEnvolvente() {
     envolvente.caras.push_back(cara2);
     envolvente.cantCaras++;
 
-    Cara cara3 = {envolvente.puntos[4], envolvente.puntos[6], envolvente.puntos[7], envolvente.puntos[5]};
+    Cara cara3 = {4, 6, 7, 5};
     envolvente.caras.push_back(cara3);
     envolvente.cantCaras++;
 
-    Cara cara4 = {envolvente.puntos[0], envolvente.puntos[2], envolvente.puntos[3], envolvente.puntos[1]};
+    Cara cara4 = {0, 2, 3, 1};
     envolvente.caras.push_back(cara4);
     envolvente.cantCaras++;
 
-    Cara cara5 = {envolvente.puntos[0], envolvente.puntos[1], envolvente.puntos[5], envolvente.puntos[4]};
+    Cara cara5 = {0, 1, 5, 4};
     envolvente.caras.push_back(cara5);
     envolvente.cantCaras++;
 
@@ -521,7 +524,7 @@ void Comandos::ejecutarCercanoCaja (string n){
         cout<<"Error: El objeto "<< n <<" no ha sido cargado en memoria\n";;
     }
     if(existeE==false){
-        ejecutarEnvolventeObjeto(n);
+        //ejecutarEnvolventeObjeto(n);
         for(const auto& objet : objetosCargados) {
             if(objet.nombre==nEnvol)
                 envolvente=objet;
@@ -607,8 +610,18 @@ void Comandos::ejecutarGuardar(const string& nombreObjeto, const string& nombreA
         }
         archivo << endl;
     }
-    cout<<"Archivo creado exitosamente.\n";
+    cout << "Archivo creado exitosamente.\n";
+// Verificación de escritura exitosa
+    if (archivo) {
+        cout << "Archivo creado exitosamente.\n";
+    } else {
+        cout << "Error al escribir el archivo.\n";
+    }
+
+    // Cerrar archivo al finalizar
+    archivo.close();
 }
+
 
 void Comandos::ejecutarRutaCorta(int i1, int i2, string nombreObjeto) {
     // Verificar si el objeto existe
