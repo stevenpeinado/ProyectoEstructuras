@@ -283,7 +283,7 @@ void Comandos::ejecutarCargar(const string& nombreArchivo) {
                 cara.vertices.push_back(a); // Agregar índice
             }
 
-            objeto.caras.push_back(cara);
+            objeto.caras.push_back(cara)    ;
             file >> nPuntosxCara;
         }
 
@@ -357,27 +357,27 @@ void Comandos::ejecutarEnvolventeObjeto(const string& nombreObjeto) {
     envolvente.puntos.push_back(punto7);
     envolvente.puntos.push_back(punto8);
 
-    Cara cara1 = {envolvente.puntos[0], envolvente.puntos[2], envolvente.puntos[6], envolvente.puntos[4]};
+    Cara cara1 = {0, 2, 6, 4};
     envolvente.caras.push_back(cara1);
     envolvente.cantCaras++;
 
-    Cara cara2 = {envolvente.puntos[1], envolvente.puntos[3], envolvente.puntos[7], envolvente.puntos[5]};
+    Cara cara2 = {1, 3, 7, 5};
     envolvente.caras.push_back(cara2);
     envolvente.cantCaras++;
 
-    Cara cara3 = {envolvente.puntos[4], envolvente.puntos[6], envolvente.puntos[7], envolvente.puntos[5]};
+    Cara cara3 = {4, 6, 7, 5};
     envolvente.caras.push_back(cara3);
     envolvente.cantCaras++;
 
-    Cara cara4 = {envolvente.puntos[0], envolvente.puntos[2], envolvente.puntos[3], envolvente.puntos[1]};
+    Cara cara4 = {0, 2, 3, 1};
     envolvente.caras.push_back(cara4);
     envolvente.cantCaras++;
 
-    Cara cara5 = {envolvente.puntos[0], envolvente.puntos[1], envolvente.puntos[5], envolvente.puntos[4]};
+    Cara cara5 = {0, 1, 5, 4};
     envolvente.caras.push_back(cara5);
     envolvente.cantCaras++;
 
-    Cara cara6 = {envolvente.puntos[2], envolvente.puntos[3], envolvente.puntos[7], envolvente.puntos[6]};
+    Cara cara6 = {2, 3, 7, 6};
     envolvente.caras.push_back(cara6);
     envolvente.cantCaras++;
     envolvente.cantAristas=12;
@@ -424,11 +424,11 @@ void Comandos::ejecutarEnvolvente() {
     envolvente.puntos.push_back(punto7);
     envolvente.puntos.push_back(punto8);
 
-    Cara cara1 = {envolvente.puntos[0], envolvente.puntos[2], envolvente.puntos[6], envolvente.puntos[4]};
+    Cara cara1 = {0, 2, 6, 4};
     envolvente.caras.push_back(cara1);
     envolvente.cantCaras++;
 
-    Cara cara2 = {envolvente.puntos[1], envolvente.puntos[3], envolvente.puntos[7], envolvente.puntos[5]};
+    Cara cara2 = {1, 3, 7, 5};
     envolvente.caras.push_back(cara2);
     envolvente.cantCaras++;
 
@@ -444,7 +444,7 @@ void Comandos::ejecutarEnvolvente() {
     envolvente.caras.push_back(cara5);
     envolvente.cantCaras++;
 
-    Cara cara6 = {envolvente.puntos[2], envolvente.puntos[3], envolvente.puntos[7], envolvente.puntos[6]};
+    Cara cara6 = {2, 3, 7, 6};
     envolvente.caras.push_back(cara6);
     envolvente.cantCaras++;
 
@@ -593,20 +593,8 @@ void Comandos::ejecutarGuardar(const string& nombreObjeto, const string& nombreA
     for (const auto& cara : objetoGuardar.caras) {
         archivo << cara.vertices.size();
         for (const auto& vertice : cara.vertices) {
-            int indice = -1;
-            for (int i = 0; i < objetoGuardar.puntos.size(); i++) {
-                if (objetoGuardar.puntos[i].x == vertice.x &&
-                    objetoGuardar.puntos[i].y == vertice.y &&
-                    objetoGuardar.puntos[i].z == vertice.z) {
-                    indice = i;
-                    break;
-                }
-            }
-            if (indice != -1) {
-                archivo << " " << indice;  // Un solo espacio para separar los índices
-            } else {
-                cout << "Advertencia: no se encontró un vértice correspondiente.\n";
-            }
+                archivo << " " << vertice;  // Un solo espacio para separar los índices
+
         }
         archivo << endl;
     }
